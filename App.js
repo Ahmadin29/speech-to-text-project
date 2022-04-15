@@ -1,12 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Voice from '@react-native-voice/voice';
 import { useEffect, useState } from 'react';
+import { Icon } from 'react-native-elements';
 
 export default function App() {
 
   
-  const [isStarted,setIsStarted] = useState();
+  const [results,setResults] = useState([]);
+  const [isStarted,setIsStarted] = useState(false);
   
   useEffect(()=>{
 
@@ -14,7 +16,7 @@ export default function App() {
       const data =  await Voice.isAvailable();
       console.log(data);
     }
-    
+
     checkVoiceAvailability()
 
     function onSpeechStart(e) {
@@ -22,10 +24,17 @@ export default function App() {
     }
 
     onSpeechResults = (e) => {
-      console.log('onSpeechResults: ', e);
+      setIsStarted(false)
+      setResults(e.value)
     };
 
+    onSpeechResults = (e) => {
+      setIsStarted(false)
+      Alert.alert('Oopss','There is an error with error code'+e?.error?.message)
+      console.log(e);
+    };
 
+    Voice.onSpeechError = onSpeechResults;
     Voice.onSpeechStart = onSpeechStart;
     Voice.onSpeechResults = onSpeechResults;
 
@@ -36,16 +45,8 @@ export default function App() {
   
   const onSpeechStart = async()=>{
     try {
-      await Voice.start('en-US');
-      console.log('asd');
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  const onSpeechEnd = async()=>{
-    try {
-      await Voice.stop();
+      setIsStarted(true)
+      await Voice.start('id-id');
     } catch (e) {
       console.error(e);
     }
@@ -58,23 +59,37 @@ export default function App() {
         flexDirection:"row",
       }} >
         <TouchableOpacity style={{
-          padding:15,
-          backgroundColor:"#fe123d",
-          marginRight:20,
+          width:100,
+          height:100,
+          backgroundColor:!isStarted ? "#3471eb" : "#eb344f",
+          borderRadius:100,
+          alignItems:"center",
+          justifyContent:"center",
         }} onPress={()=>{
           onSpeechStart();
         }} >
-          <Text>Start</Text>
+          <Icon
+            name={!isStarted ? 'md-mic-outline' : 'md-stop'}
+            type='ionicon'
+            color="white"
+            size={50}
+            containerStyle={{
+              marginLeft:5,
+            }}
+          />
         </TouchableOpacity>
-        <TouchableOpacity style={{
-          padding:15,
-          borderColor:"#fe123d",
-          borderWidth:1,
-        }} onPress={()=>{
-          onSpeechEnd();
-        }} >
-          <Text>Stop</Text>
-        </TouchableOpacity>
+      </View>
+      <View style={{
+        marginTop:15,
+      }} >
+        <Text>Results : </Text>
+        {
+          results?.map(v=>{
+            return(
+              <Text key={v} >{v}</Text>
+            )
+          })
+        }
       </View>
     </View>
   );
