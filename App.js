@@ -28,13 +28,13 @@ export default function App() {
       setResults(e.value)
     };
 
-    onSpeechResults = (e) => {
+    onSpeechError = (e) => {
       setIsStarted(false)
-      Alert.alert('Oopss','There is an error with error code'+e?.error?.message)
+      Alert.alert('Oopss','There is an error with error code '+e?.error?.message)
       console.log(e);
     };
 
-    Voice.onSpeechError = onSpeechResults;
+    Voice.onSpeechError = onSpeechError;
     Voice.onSpeechStart = onSpeechStart;
     Voice.onSpeechResults = onSpeechResults;
 
